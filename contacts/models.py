@@ -62,7 +62,7 @@ class Contact(Notification):
     content_type = models.ForeignKey(
         "contenttypes.ContentType", on_delete=models.CASCADE
     )
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=36)
     content_object = GenericForeignKey()
     position = models.ForeignKey(
         "contacts.ContactPosition", on_delete=models.DO_NOTHING, null=True, blank=True
