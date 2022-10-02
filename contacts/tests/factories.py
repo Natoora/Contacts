@@ -10,8 +10,6 @@ from contacts.models import (
     Contact,
     ContactPosition,
 )
-from customers.models import Customer
-from customers.tests.factories.customer import CustomerTestData
 
 
 class ContactsSettingsFactory(factory.django.DjangoModelFactory):
@@ -84,61 +82,3 @@ class EmailRecipientListFactory(factory.django.DjangoModelFactory):
     name = factory.Faker("name")
     description = FuzzyText(length=100)
     recipients = FuzzyText(length=100)
-
-
-# LEGACY
-class ContactTestData:
-    @staticmethod
-    def setup():
-        """
-        Create an address for all customers in system.
-        """
-        CustomerTestData.setup()
-        contact_list = list()
-        ContactTestData._create_positions()
-
-        try:
-            cust_model = ContentType.objects.get(
-                model="customer", app_label="customers"
-            )
-        except ContentType.DoesNotExist:
-            cust_model = ContentType.objects.create(
-                model="customer", app_label="customers"
-            )
-
-        for cust in Customer.objects.all():
-            try:
-                c = Contact.objects.get(content_type=cust_model, object_id=cust.id)
-            except Contact.DoesNotExist:
-                c = Contact.objects.create(
-                    content_type=cust_model,
-                    object_id=cust.id,
-                    position=ContactPosition.objects.get(name="Head Chef"),
-                    first_name="Ed",
-                    last_name="Chapman",
-                    email="technology@natoora.com",
-                    telephone="02071112223",
-                    mobile="07711222333",
-                    notes="Some notes.",
-                    confirmation=True,
-                    preparation=True,
-                    invoice=True,
-                    market_report=True,
-                    news_letter=True,
-                    credit_note=True,
-                    second_selection=True,
-                )
-            contact_list.append(c)
-        return contact_list
-
-    @staticmethod
-    def _create_positions():
-        try:
-            p = ContactPosition.objects.get(name="Head Chef")
-        except ContactPosition.DoesNotExist:
-            p = ContactPosition.objects.create(name="Head Chef")
-
-    @staticmethod
-    def teardown():
-        CustomerTestData.teardown()
-        Contact.objects.all().delete()
